@@ -3,9 +3,14 @@ Recieves .parquet bytes, does a requested transformation, and returns data in th
 """
 import io
 import os
+import re
+
+import pydantic
 import requests
 import fastapi
+
 import pandas as pd
+import url_args
 
 ROUTER_URL = "http://0.0.0.0:8000"
 
@@ -20,14 +25,8 @@ TRANSFORMS = {
             }
         }
 
-def type_infer(p):
-    try:
-        return int(p)
-    except ValueError:
-        return str(p)
-
 @app.get("/{loa}/{transform_name}/{params}/{rhs:path}")
-def transform(loa:str,transform_name:str,params:str,rhs:str):
+def transform(loa:str,transform_name:str,url_args_raw:url_args.url_args,rhs:str):
     rhs_request = requests.get(os.path.join(ROUTER_URL,loa,rhs))
 
     if not rhs_request.status_code == 200:
@@ -48,14 +47,18 @@ def transform(loa:str,transform_name:str,params:str,rhs:str):
     except KeyError:
         return fastapi.Response(f"Transform not found: {loa}>{transform_name}", status_code=404)
 
-    """
-    if params != "_":
-        args = [type_infer(p) for p in params.split("_")] + [data]
+    args = [data]
+    if url_args_raw == "_":
+        pass
     else:
-        args = [data]
-    data = fn(*params)
-    """
+        args = url_args.parse(url_args_raw) + args
+        
+    try:
+        data = fn(*args)
+    except TypeError as e:
+        return fastapi.Response(content=str(e),status_code=400)
 
     fake_file = io.BytesIO()
     data.to_parquet(fake_file,compression="gzip")
+
     return fastapi.Response(fake_file.getvalue(),media_type="application/octet-stream")
