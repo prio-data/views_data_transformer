@@ -38,7 +38,7 @@ def timelag(rhs_url: str, df:pd.DataFrame, lag_size:int):
         prev_request = requests.get(prev_url)
 
         if prev_request.status_code != 200:
-            raise requests.HTTPError
+            raise requests.HTTPError(response = prev_request)
 
         prev_data = pd.read_parquet(io.BytesIO(prev_request.content))
         df = pd.concat([prev_data,df])

@@ -69,6 +69,8 @@ def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:s
     except TypeError as e:
         # Wrong number of arguments
         return fastapi.Response(content=str(e),status_code=400)
+    except HTTPError as e:
+        return fastapi.Response(content=response.content,status_code=response.status_code)
 
     fake_file = io.BytesIO()
     data.to_parquet(fake_file,compression="gzip")
