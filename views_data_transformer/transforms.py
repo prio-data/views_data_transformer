@@ -45,4 +45,4 @@ def timelag(rhs_url: str, df:pd.DataFrame, lag_size:int):
 
     df = lag_by_index(df,lag_size)
     df.columns = [c+"_tlag_"+str(lag_size) for c in df.columns]
-    return df.loc[start:end,:]
+    return df.sort_index(level=0).loc[start:end,:]

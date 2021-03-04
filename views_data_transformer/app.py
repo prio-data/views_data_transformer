@@ -7,13 +7,14 @@ import re
 
 import pydantic
 import requests
+from requests.exceptions import HTTPError
 import fastapi
 
 import pandas as pd
 import url_args
 from transforms import timelag
 
-ROUTER_URL = "http://0.0.0.0:8000"
+import settings
 
 app = fastapi.FastAPI()
 
@@ -37,7 +38,7 @@ TRANSFORMS = {
 
 @app.get("/{loa}/{transform_name}/{url_args_raw}/{rhs:path}")
 def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:str):
-    rhs_url = os.path.join(ROUTER_URL,loa,rhs)
+    rhs_url = os.path.join(settings.ROUTER_URL,loa,rhs)
     rhs_request = requests.get(rhs_url)
 
     if not rhs_request.status_code == 200:
@@ -70,6 +71,7 @@ def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:s
         # Wrong number of arguments
         return fastapi.Response(content=str(e),status_code=400)
     except HTTPError as e:
+        response = HTTPError.response
         return fastapi.Response(content=response.content,status_code=response.status_code)
 
     fake_file = io.BytesIO()
