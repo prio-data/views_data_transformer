@@ -12,7 +12,7 @@ import fastapi
 
 import pandas as pd
 import url_args
-from transforms import timelag
+from transforms import month_time_lag,Context
 
 import settings
 
@@ -27,12 +27,12 @@ Each transform takes two arguments:
 
 TRANSFORMS = {
         "priogrid_month":{
-            "identity":lambda r,df: df,
-            "tlag":timelag
+            "identity":lambda r,ctx: df,
+            "tlag": month_time_lag
             },
         "country_month":{
-            "identity":lambda r,df: df,
-            "tlag":timelag
+            "identity":lambda df,ctx: df,
+            "tlag": month_time_lag
             }
         }
 
@@ -40,6 +40,8 @@ TRANSFORMS = {
 def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:str):
     rhs_url = os.path.join(settings.ROUTER_URL,loa,rhs)
     rhs_request = requests.get(rhs_url)
+
+    ctx = Context(path=rhs,level_of_analysis=loa)
 
     if not rhs_request.status_code == 200:
         return fastapi.Response(f"Router returned {rhs_request.status_code} "
@@ -59,20 +61,18 @@ def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:s
     except KeyError:
         return fastapi.Response(f"Transform not found: {loa}>{transform_name}", status_code=404)
 
-    args = [rhs_url,data]
     if url_args_raw == "_":
-        pass
+        args = []
     else:
-        args = args + url_args.parse(url_args_raw)
+        args = url_args.parse(url_args_raw)
         
     try:
-        data = fn(*args)
+        data = fn(data,ctx,*args)
     except TypeError as e:
         # Wrong number of arguments
         return fastapi.Response(content=str(e),status_code=400)
-    except HTTPError as e:
-        response = HTTPError.response
-        return fastapi.Response(content=response.content,status_code=response.status_code)
+    except HTTPError as httpe:
+        return fastapi.Response(content=str(httpe.response.content),status_code=httpe.response.status_code)
 
     fake_file = io.BytesIO()
     data.to_parquet(fake_file,compression="gzip")

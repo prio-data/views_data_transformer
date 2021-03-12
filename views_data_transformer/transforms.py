@@ -1,48 +1,63 @@
-import os
-import io
-import math
-import fastapi
-import requests
-import pandas as pd
-import numpy as np
+from collections import defaultdict
+from views_transformation_library.views_2 import tlag
+from fetch import merge_with_previous,get_nav
+from calls import get_year_month_id_bounds
+import logging
 
-def lag_by_index(df,lag_size,index_no=0):
-    """
-    "lags" the specified index 
-    """
-    idx_names = df.index.names
-    if idx_names[0] is None:
-        idx_names = ["index"]
+class Context:
+    def __init__(self,path,level_of_analysis):
+        self.path = path
+        self.level_of_analysis = level_of_analysis
+        self.nav = None
 
-    df = df.reset_index()
-    df[idx_names[index_no]]+=lag_size
-    df = df.set_index(idx_names)
-    return df
+    @property
+    def year(self):
+        if self.nav is None:
+            self.get_nav()
+        return self.nav["current"]["year"]
+    
+    def get_nav(self):
+        self.nav = get_nav(self.path)
+
+def apply_to_first_column(fn):
+    def inner(dataframe,*args,**kwargs):
+        dataframe[dataframe.columns[0]] = fn(dataframe[dataframe.columns[0]],*args,**kwargs)
+        return dataframe
+    return inner
+
+def sort_first(fn):
+    def inner(dataframe,*args,**kwargs):
+        return fn(dataframe.sort_index(level=0),*args,**kwargs)
+    return inner
 
 
-def timelag(rhs_url: str, df:pd.DataFrame, lag_size:int):
-    """
-    This function exposes lag_by_index, handling the retrieval of data for 
-    the previous year(s) to carry over.
-    """
+def identity(*args,**kwargs):
+    return args[0]
 
-    tindices = np.array([i[0] for i in df.index.values])
-    start,end = tindices.min(),tindices.max()
-    year_unit_size = (end-start)+1
-    tlag_year_size = (lag_size / year_unit_size) 
+def transform_pipeline(pre,trf,post):
+    def inner(dataframe,context,*args,**kwargs):
+        prepared = pre(dataframe,context,*args,**kwargs)
+        transformed = trf(prepared,*args,**kwargs)
+        return post(transformed,context,*args,**kwargs)
+    return inner
 
-    for i in range(math.ceil(tlag_year_size)):
-        prev_url,yr = os.path.split(rhs_url)
-        prev_url = os.path.join(prev_url,str(int(yr)-(i+1)))
+def get_previous_months(dataframe,context,*args,**_):
+    n_months = args[0]
+    n_years = (n_months // 12) + 1 
+    until = context.year - n_years
+    dataframe = merge_with_previous(
+            context.level_of_analysis,
+            context.path,dataframe,until
+        )
+    return dataframe
 
-        prev_request = requests.get(prev_url)
+def trim_to_year(dataframe,context,*_,**__):
+    start,end = get_year_month_id_bounds(context.year)
+    subset = dataframe.sort_index(level=0).loc[start:end,:]
+    return subset
 
-        if prev_request.status_code != 200:
-            raise requests.HTTPError(response = prev_request)
-
-        prev_data = pd.read_parquet(io.BytesIO(prev_request.content))
-        df = pd.concat([prev_data,df])
-
-    df = lag_by_index(df,lag_size)
-    df.columns = [c+"_tlag_"+str(lag_size) for c in df.columns]
-    return df.sort_index(level=0).loc[start:end,:]
+month_time_lag = transform_pipeline(
+        get_previous_months,
+        apply_to_first_column(sort_first(tlag)),
+        identity 
+    )

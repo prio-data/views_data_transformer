@@ -18,3 +18,5 @@ app_config_client = AzureAppConfigurationClient.from_connection_string(
 
 ROUTER_URL = app_config_client.get_configuration_setting("data-router-url").value
 
+TIME_CASTER_URL = app_config_client.get_configuration_setting("time-caster-url").value
+
