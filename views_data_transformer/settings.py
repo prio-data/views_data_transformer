@@ -1,4 +1,6 @@
 
+import os
+import requests
 from environs import Env
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -7,16 +9,23 @@ from azure.appconfiguration import AzureAppConfigurationClient
 env = Env()
 env.read_env()
 
-KEY_VAULT_URL = env.str("KEY_VAULT_URL") 
+PROD = env.bool("PRODUCTION","true")
 
-app_config_client = AzureAppConfigurationClient.from_connection_string(
-        (SecretClient(KEY_VAULT_URL,DefaultAzureCredential())
-            .get_secret("app-settings-connection-string")
-            .value
-        )
-)
+def get_dev_kv(k):
+    return requests.get(os.path.join(env.str("REST_ENV_URL",""),k)).content.decode()
 
-ROUTER_URL = app_config_client.get_configuration_setting("data-router-url").value
 
-TIME_CASTER_URL = app_config_client.get_configuration_setting("time-caster-url").value
+if PROD:
+    secret_client = SecretClient(env.str("KEY_VAULT_URL"),DefaultAzureCredential())
+    app_config_client = AzureAppConfigurationClient.from_connection_string(
+                get_secret("appconfig-connection-string")
+            )
+    get_secret = lambda k: secret_client.get_secret(k).value
+    get_config = lambda k: app_config_client.get_configuration_setting(k).value
+else:
+    get_secret = get_dev_kv
+    get_config = get_dev_kv
+
+ROUTER_URL = get_config("data-router-url")
+TIME_CASTER_URL = get_config("time-caster-url")
 
