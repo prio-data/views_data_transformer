@@ -1,9 +1,16 @@
 """
 Recieves .parquet bytes, does a requested transformation, and returns data in the same format.
+
+Each transform takes two arguments:
+
+    rhs, which is the URL to the router resource to be transformed
+    The dataset df, which is retrieved from the rhs
 """
 import io
 import os
 import re
+
+import logging
 
 import pydantic
 import requests
@@ -16,14 +23,14 @@ from transforms import month_time_lag,Context
 
 import settings
 
+try:
+    logging.basicConfig(level=getattr(logging,settings.LOG_LEVEL))
+except AttributeError:
+    pass
+
+logger = logging.getLogger(__name__)
+
 app = fastapi.FastAPI()
-
-"""
-Each transform takes two arguments:
-
-    rhs, which is the URL to the router resource to be transformed
-    The dataset df, which is retrieved from the rhs
-"""
 
 TRANSFORMS = {
         "priogrid_month":{
@@ -52,6 +59,8 @@ def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:s
     try:
         data = pd.read_parquet(io.BytesIO(rhs_request.content))
     except ValueError:
+        logger.error("%s - %s - %s expected a parquet file, but %s was not valid parquet",
+                loa,transform_name,url_args_raw,rhs)
         return fastapi.Response(f"RHS {rhs} returned wrong data type "
                 f"{str(rhs_request.content)}",
                 status_code=500)

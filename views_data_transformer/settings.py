@@ -29,3 +29,4 @@ else:
 ROUTER_URL = get_config("data-router-url")
 TIME_CASTER_URL = get_config("time-caster-url")
 
+LOG_LEVEL = get_config("log-level")
