@@ -1,9 +1,16 @@
 """
 Recieves .parquet bytes, does a requested transformation, and returns data in the same format.
+
+Each transform takes two arguments:
+
+    rhs, which is the URL to the router resource to be transformed
+    The dataset df, which is retrieved from the rhs
 """
 import io
 import os
 import re
+
+import logging
 
 import pydantic
 import requests
@@ -14,20 +21,20 @@ import pandas as pd
 import url_args
 from transforms import month_time_lag,Context
 
-import settings
+from settings import config
+
+try:
+    logging.basicConfig(level=getattr(logging,config("LOG_LEVEL")))
+except AttributeError:
+    pass
+
+logger = logging.getLogger(__name__)
 
 app = fastapi.FastAPI()
 
-"""
-Each transform takes two arguments:
-
-    rhs, which is the URL to the router resource to be transformed
-    The dataset df, which is retrieved from the rhs
-"""
-
 TRANSFORMS = {
         "priogrid_month":{
-            "identity":lambda r,ctx: df,
+            "identity":lambda df,ctx: df,
             "tlag": month_time_lag
             },
         "country_month":{
@@ -38,7 +45,7 @@ TRANSFORMS = {
 
 @app.get("/{loa}/{transform_name}/{url_args_raw}/{rhs:path}")
 def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:str):
-    rhs_url = os.path.join(settings.ROUTER_URL,loa,rhs)
+    rhs_url = os.path.join(config("ROUTER_URL"),loa,rhs)
     rhs_request = requests.get(rhs_url)
 
     ctx = Context(path=rhs,level_of_analysis=loa)
@@ -52,6 +59,8 @@ def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:s
     try:
         data = pd.read_parquet(io.BytesIO(rhs_request.content))
     except ValueError:
+        logger.error("%s - %s - %s expected a parquet file, but %s was not valid parquet",
+                loa,transform_name,url_args_raw,rhs)
         return fastapi.Response(f"RHS {rhs} returned wrong data type "
                 f"{str(rhs_request.content)}",
                 status_code=500)

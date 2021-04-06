@@ -2,11 +2,11 @@
 import os
 from datetime import date
 import requests
-import settings
+from settings import config
 
 def vmid(tgt_date):
     response = requests.get(
-            os.path.join(settings.TIME_CASTER_URL,
+            os.path.join(config("TIME_CASTER_URL"),
                 "vmid",str(tgt_date))
             )
     return int(response.content.decode())
