@@ -21,10 +21,10 @@ import pandas as pd
 import url_args
 from transforms import month_time_lag,Context
 
-import settings
+from settings import config
 
 try:
-    logging.basicConfig(level=getattr(logging,settings.LOG_LEVEL))
+    logging.basicConfig(level=getattr(logging,config("LOG_LEVEL")))
 except AttributeError:
     pass
 
@@ -34,7 +34,7 @@ app = fastapi.FastAPI()
 
 TRANSFORMS = {
         "priogrid_month":{
-            "identity":lambda r,ctx: df,
+            "identity":lambda df,ctx: df,
             "tlag": month_time_lag
             },
         "country_month":{
@@ -45,7 +45,7 @@ TRANSFORMS = {
 
 @app.get("/{loa}/{transform_name}/{url_args_raw}/{rhs:path}")
 def transform(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:str):
-    rhs_url = os.path.join(settings.ROUTER_URL,loa,rhs)
+    rhs_url = os.path.join(config("ROUTER_URL"),loa,rhs)
     rhs_request = requests.get(rhs_url)
 
     ctx = Context(path=rhs,level_of_analysis=loa)

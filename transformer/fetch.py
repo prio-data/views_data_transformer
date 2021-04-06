@@ -5,13 +5,13 @@ import logging
 import requests
 from requests.exceptions import HTTPError
 import pandas as pd
-import settings
+from settings import config
 
 def get_data(loa,path):
     """
     Retrieves corresponding data from Router
     """
-    url = os.path.join(settings.ROUTER_URL,loa,path)
+    url = os.path.join(config("ROUTER_URL"),loa,path)
     response = requests.get(url)
     if not response.status_code == 200:
         raise HTTPError(response=response)
@@ -34,7 +34,7 @@ def get_nav(path):
     """
     Retrieves temporal navigation information for a given path
     """
-    url = os.path.join(settings.ROUTER_URL,"nav",path)
+    url = os.path.join(config("ROUTER_URL"),"nav",path)
     response = requests.get(url)
     if not response.status_code == 200:
         raise HTTPError(response=response)
