@@ -1,3 +1,3 @@
 
-def identity(*args,**_):
-    return args[0]
+def identity(x):
+    return x 

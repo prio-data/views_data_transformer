@@ -25,6 +25,12 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(sum(parsed),2.2)
         self.assertEqual(len(parsed),2)
 
+        parsed = url_args.parse("_")
+        self.assertListEqual(parsed,[])
+
+        parsed = url_args.parse("0_1")
+        self.assertEqual(len(parsed),2)
+
     def test_type_infer(self):
         """
         Tests type inference, used for arg parsing
@@ -34,7 +40,7 @@ class TestUtilityFunctions(unittest.TestCase):
                 ("1.2",1.2),
                 ("1.2a","1.2a"),
                 ("+?fa<z>_12","+?fa<z>_12"),
-                ("_","_"),
+                ("_",None),
             ]
 
         for arg,out in cases:

@@ -20,6 +20,8 @@ url_args_regexp = (r"^((?:"
 url_args = constr(regex=url_args_regexp)
 
 def type_infer(p):
+    if p == "_":
+        return None
     try:
         return int(p)
     except ValueError:
@@ -31,4 +33,5 @@ def type_infer(p):
 def parse(raw:str):
     url_args.validate(raw)
     args = [type_infer(a) for a in raw.split("_")]
+    args = [a for a in args if a is not None and a != ''] 
     return args
