@@ -17,14 +17,11 @@ def get_from_router(loa,path)->pd.DataFrame:
     response = requests.get(router_url(loa,path))
 
     if not response.status_code == 200:
-        return fastapi.Response(f"Router returned {response.status_code} "
-                f"{response.content}",
-                status_code=response.status_code)
-
+        raise requests.HTTPError(response=response)
 
     try:
         data = pd.read_parquet(io.BytesIO(response.content))
-    except ValueError:
-        return fastapi.Response(f"{path} was not parquet: {str(response.content)}",status_code=500)
+    except ValueError as ve:
+        raise ValueError(f"{path} was not parquet: {str(response.content)}") from ve
 
     return data
