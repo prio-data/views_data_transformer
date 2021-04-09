@@ -19,6 +19,6 @@ def get_transform(loa,name):
         from_mod,_ = os.path.splitext(__name__)
         module = importlib.import_module("."+module,package=from_mod)
         fn = getattr(module,function_name)
-    except (ModuleNotFoundError,AttributeError,AssertionError) as e:
+    except (ModuleNotFoundError,AttributeError,AssertionError,ValueError) as e:
         raise exceptions.NotRegistered(e) from e
     return fn
