@@ -15,6 +15,7 @@ from requests import HTTPError
 from . import url_args,settings,remotes
 from . import transforms
 from . transforms.exceptions import NotRegistered
+from . import __version__
 
 try:
     logging.basicConfig(level=getattr(logging,settings.config("LOG_LEVEL")))
@@ -23,6 +24,12 @@ except AttributeError:
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
+
+@app.get("/")
+def handshake():
+    return {
+        "version": __version__
+        }
 
 @app.get("/{loa}/{transform_name}/{url_args_raw}/{rhs:path}")
 def transform_data(loa:str, transform_name:str, url_args_raw:url_args.url_args, rhs:str):
