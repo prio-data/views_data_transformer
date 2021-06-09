@@ -11,7 +11,7 @@ def vectorize_across_dataframe(fn):
     The transform service only ever handles single-column data-frames (excepting indices).
     """
 
-    #@functools.wraps(fn)
+    @functools.wraps(fn)
     def inner(data,*args,**kwargs):
         for name in data.columns:
             data[name] = fn(data[name],*args,**kwargs)
