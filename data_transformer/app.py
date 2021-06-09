@@ -50,6 +50,9 @@ def transform_data(loa:str, transform_name:str, url_args_raw:url_args.url_args, 
     except NotRegistered as nr:
         return Response(f"Transform {transform_name} is not registered for {loa}: {str(nr)}",
                 status_code=400)
+    except TypeError as type_error:
+        return Response("Wrong number of arguments for function "
+                f"{transform_name}: {arguments}. Raised {type_error}", status_code = 400)
 
     fake_file = io.BytesIO()
     data.to_parquet(fake_file,compression="gzip")
