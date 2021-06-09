@@ -20,5 +20,7 @@ def transform(data,loa,transform_name,arguments):
     fn = registry.get_transform(loa,transform_name)
     if transform_name != "util.rename":
         annotate_with(data,fn,arguments)
+    else:
+        arguments = ["_".join([str(a) for a in arguments])]
     print("Applying %s with arguments %s",fn.__name__,str(arguments))
     return fn(data,*arguments)
