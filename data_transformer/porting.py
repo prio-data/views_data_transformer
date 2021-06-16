@@ -12,7 +12,8 @@ def vectorize_across_dataframe(fn):
     """
 
     @functools.wraps(fn)
-    def inner(data,*args,**kwargs):
+    def inner(*args,**kwargs):
+        data,*args = args
         for name in data.columns:
             data[name] = fn(data[name],*args,**kwargs)
         return data
