@@ -12,10 +12,7 @@ import logging
 from fastapi import Response,FastAPI
 from requests import HTTPError
 
-from . import url_args,settings,remotes
-from . import transforms
-from . transforms.exceptions import NotRegistered
-from . import __version__
+from . import url_args, settings, remotes, exceptions, operations, transforms, __version__
 
 try:
     logging.basicConfig(level=getattr(logging,settings.config("LOG_LEVEL")))
@@ -37,19 +34,24 @@ def transform_data(loa:str, transform_name:str, url_args_raw:url_args.url_args, 
 
     try:
         data = remotes.get_from_router(loa,rhs)
+
     except HTTPError as httpe:
         resp = httpe.response
         return Response(resp.content,status_code=resp.status_code)
+
     except ValueError as ve:
         return Response(str(ve))
 
     arguments = url_args.parse(url_args_raw)
 
     try:
-        data = transforms.transform(data,loa,transform_name,arguments)
-    except NotRegistered as nr:
+        namespace, name = transform_name.split(".")
+        data = operations.transform_data(data, loa, namespace, name, arguments)
+
+    except exceptions.NotRegistered as nr:
         return Response(f"Transform {transform_name} is not registered for {loa}: {str(nr)}",
-                status_code=400)
+                status_code=404)
+
     except TypeError as type_error:
         return Response("Wrong number of arguments for function "
                 f"{transform_name}: {arguments}. Raised {type_error}", status_code = 400)
@@ -57,3 +59,10 @@ def transform_data(loa:str, transform_name:str, url_args_raw:url_args.url_args, 
     fake_file = io.BytesIO()
     data.to_parquet(fake_file,compression="gzip")
     return Response(fake_file.getvalue(),media_type="application/octet-stream")
+
+@app.get("/transforms/")
+def list_transforms():
+    return {
+            "transforms": transforms.registry.list_transforms()
+        }
+

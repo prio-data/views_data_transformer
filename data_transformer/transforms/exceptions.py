@@ -1,3 +1,0 @@
-
-class NotRegistered(Exception):
-    pass

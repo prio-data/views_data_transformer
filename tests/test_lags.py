@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 from numpy.testing import assert_array_equal 
-from . import testutils,lags
+from data_transformer.transforms import testutils,lags
 
 class TestLags(unittest.TestCase):
     def test_timelag(self):
