@@ -1,7 +1,7 @@
 import unittest
 from pydantic.errors import StrRegexError
 
-from . import url_args
+from data_transformer import url_args
 
 class TestUtilityFunctions(unittest.TestCase):
     def test_url_parse(self):

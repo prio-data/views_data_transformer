@@ -1,7 +1,7 @@
 
 import math
 import unittest 
-from data_transformer.transforms import testutils
+from data_transformer import testutils
 
 class TestTestutils(unittest.TestCase):
     def test_testutils(self):
