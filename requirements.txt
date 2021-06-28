@@ -14,3 +14,4 @@ azure-keyvault-secrets>=4.2.0
 views-transformation-library>=1.0.0
 fitin>=0.2.0
 httpretty>=1.0.5
+views-schema~=0.5.0

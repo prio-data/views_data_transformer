@@ -30,8 +30,13 @@ def type_infer(p):
         except ValueError:
             return str(p)
 
-def parse(raw:str):
+def parse_url_args(raw:str):
     url_args.validate(raw)
     args = [type_infer(a) for a in raw.split("_")]
-    args = [a for a in args if a is not None and a != ''] 
+    args = [a for a in args if a is not None and a != '']
     return args
+
+transform_namespace_name = constr(regex=r"[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+")
+
+def parse_transform_namespace_name(namespace_name):
+    return namespace_name.split(".")

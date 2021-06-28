@@ -1,8 +1,6 @@
+import logging
 import os
 import io
-import logging
-
-import fastapi
 import requests
 import pandas as pd
 from . import settings
@@ -14,6 +12,8 @@ def router_url(loa,path):
     return os.path.join(ROUTER_URL,loa,path)
 
 def get_from_router(loa,path)->pd.DataFrame:
+    url = router_url(loa,path)
+    logger.info(f"Fetching remote data at {url}")
     response = requests.get(router_url(loa,path))
 
     if not response.status_code == 200:
