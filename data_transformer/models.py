@@ -7,6 +7,9 @@ class Transform(BaseModel):
     name: str
     namespace: str
 
+    def path(self):
+        return self.level_of_analysis + "/" + self.namespace + "." + self.name
+
 class Argument(BaseModel):
     name: str
     type: Optional[str]
@@ -14,4 +17,3 @@ class Argument(BaseModel):
 class TransformDetail(Transform):
     arguments: List[Argument]
     docstring: Optional[str]
-

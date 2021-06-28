@@ -40,4 +40,3 @@ transform_namespace_name = constr(regex=r"[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+")
 
 def parse_transform_namespace_name(namespace_name):
     return namespace_name.split(".")
-

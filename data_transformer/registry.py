@@ -48,17 +48,22 @@ class TransformFunctionRegistry:
                 raise exceptions.NotRegistered(data_type,namespace,name) from ke
             return self.get_transform("any", namespace, name)
 
-    def list_transforms(self) -> List[models.Transform]:
+    def list_transforms(self, loa: Optional[str] = None) -> List[models.Transform]:
         """
         Returns a list of all registered transforms
         """
         transforms = []
-        for loa in self._functions.keys():
-            for namespace in self._functions[loa]:
-                for name in self._functions[loa][namespace]:
+        loas = self._functions.keys()
+
+        if loa:
+            loas = [loa]
+
+        for loa_name in loas:
+            for namespace in self._functions[loa_name]:
+                for name in self._functions[loa_name][namespace]:
                     transforms.append(
                             models.Transform(
-                                level_of_analysis = loa,
+                                level_of_analysis = loa_name,
                                 namespace = namespace,
                                 name = name,
                             )

@@ -6,12 +6,13 @@ Each transform takes two arguments:
     rhs, which is the URL to the router resource to be transformed
     The dataset df, which is retrieved from the rhs
 """
-from typing import List
+from typing import List, Optional
 import io
 import logging
 
 from fastapi import Response,FastAPI
 from requests import HTTPError
+import views_schema as schema
 
 from . import parsing, settings, remotes, exceptions, operations, transforms, __version__, models
 
@@ -66,21 +67,36 @@ def transform_data(
     data.to_parquet(fake_file,compression="gzip")
     return Response(fake_file.getvalue(),media_type="application/octet-stream")
 
-@app.get("/transforms/")
-def transform_list()-> List[models.Transform]:
+@app.get("/transforms")
+def transform_list(loa: Optional[str] = None)-> schema.DocumentationEntry:
+    transform_models = transforms.registry.list_transforms(loa = loa)
+    transform_entities = [
+            schema.DocumentationEntry(name=t.name, path=t.path()) for t in transform_models
+        ]
+
+    name = "transforms" if loa is None else loa + "_" + "transforms"
+
     return {
-            "transforms": transforms.registry.list_transforms()
+            "name": name,
+            "entries": transform_entities,
         }
 
+@app.get("/transforms/{loa:str}")
+def transform_loa_list(loa:str)-> schema.DocumentationEntry:
+    return transform_list(loa = loa)
 
-@app.get("/transforms/{loa}/{transform_namespace_name}/")
-def transform_detail(
+@app.get("/transforms/{loa}/{transform_namespace_name}")
+def transform_detail_view(
         loa: str,
         transform_namespace_name: parsing.transform_namespace_name,
-        )-> List[models.Transform]:
+        )-> schema.DocumentationEntry:
     namespace, name = parsing.parse_transform_namespace_name(transform_namespace_name)
     try:
-        return transforms.registry.get_transform_function_detail(loa, namespace, name)
+        transform_detail = transforms.registry.get_transform_function_detail(loa, namespace, name)
     except exceptions.NotRegistered:
         return Response(status_code = 404)
 
+    return schema.DocumentationEntry(
+            name = transform_namespace_name,
+            data = transform_detail,
+        )
