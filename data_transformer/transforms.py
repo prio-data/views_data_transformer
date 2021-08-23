@@ -2,7 +2,7 @@
 In this file, functions are registered in a registry, which exposes them in the
 service.
 """
-from views_transformation_library import views_2
+from views_transformation_library import views_2, missing
 from . import porting, lags, util_transforms
 from . import registry as registry_module
 
@@ -113,4 +113,17 @@ registry.register_function(
 registry.register_function(
         lags.spatial_lag,
         "spatial","lag", applicable_to = ["priogrid_month"],
+        )
+
+# =MISSING DATA HANDLING==================================
+
+registry.register_function(
+        missing.fill,
+        "missing","fill"
+        )
+
+
+registry.register_function(
+        missing.extrapolate,
+        "missing","extrapolate"
         )
