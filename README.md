@@ -11,3 +11,4 @@ All transform operations must return data at the same LOA as the input.
 For resolving the base data, Transform asks the query manager responsible for
 routing to data, which also routs to Transform. This means that transformations
 can be composed.
+For information about how to contribute, see [contributing](https://www.github.com/prio-data/contributing).
