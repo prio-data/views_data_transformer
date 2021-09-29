@@ -117,7 +117,7 @@ registry.register_function(
 
 registry.register_function(
         lags.spatial_tree_lag,
-        "spatial","lag", applicable_to = ["priogrid_month"],
+        "spatial","treelag", applicable_to = ["priogrid_month"],
         )
 
 
