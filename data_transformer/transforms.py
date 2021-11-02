@@ -90,6 +90,11 @@ registry.register_function(
         porting.vectorize_across_dataframe(views_2.onset),
         "temporal","onset"
         )
+        
+registry.register_function(
+        lags.temporal_tree_lag,
+        "temporal","tree_lag"
+        )     
 
 # =UNIT TRANSFORMS========================================
 
