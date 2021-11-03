@@ -109,8 +109,8 @@ def temporal_tree_lag(df,thetacrit,weight_function,sigma,use_stride_tricks):
     return temporal_tree.get_tree_lag(
             df,
             thetacrit=thetacrit,
-            weight_function=weight_function,
-            tau=tau,
+            weight_functions=weight_function,
+            sigma=sigma,
             use_stride_tricks=use_stride_tricks
             )
 
