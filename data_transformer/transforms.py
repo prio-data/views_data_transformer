@@ -121,6 +121,11 @@ registry.register_function(
         )
 
 registry.register_function(
+        lags.spatial_lag_country,
+        "spatial","countrylag", applicable_to = ["country_month"],
+        )
+
+registry.register_function(
         lags.spatial_tree_lag,
         "spatial","treelag", applicable_to = ["priogrid_month"],
         )

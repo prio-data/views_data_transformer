@@ -1,10 +1,12 @@
-from views_transformation_library import splag4d,spatial_tree,temporal_tree
+from views_transformation_library import splag4d,splag_country,spatial_tree,temporal_tree
 
 def spatial_lag(df, kernel_inner, kernel_width, kernel_power, norm_kernel):
     '''
 
-    Performs spatial lags on a dataframe by transforming from flat format to 4d tensor
-    with dimensions longitude x latitude x time x features.
+    spatial_lag
+
+    Performs convolutional spatial lags on a pg dataframe by transforming from flat 
+    format to 4d tensor with dimensions longitude x latitude x time x features.
 
     Spatial lagging can then be done as a 2d convolution on long-lat slices using
     scipy convolution algorithms.
@@ -38,12 +40,55 @@ def spatial_lag(df, kernel_inner, kernel_width, kernel_power, norm_kernel):
             norm_kernel = norm_kernel
             )
 
+def spatial_lag_country(df,kernel_inner,kernel_width,kernel_power,norm_kernel):
+    '''
+    
+    spatial_lag_country
+    
+    Performs convolutional spatial lags on a country dataframe. 
+    
+    Country neighbours are obtained from the country_country_month_expanded table
+    in the database.
+    
+    Arguments:
+
+    df:             a dataframe of series to be splagged
+    
+    kernel_inner:   'radius' in countries where you wish to start collecting neighbours 
+                    - 0 indicates that you include the target country, 1 indicates that 
+                    you leave out the target country, 2 indicates that you leave out the 
+                    target country and its neighbours, and so on.
+    
+    kernel_width:   how far out in countries from the inner radius you wish to go. For 
+                    example, to get just the immediate neighbours but not the target 
+                    country, set kernel_inner to 1, kernel_width to 1. To get neighbours 
+                    of neighbours as well, set kernel_inner to 1, kernel_width to 2.   
+    
+    kernel_power:   controls distance weighting. Distances are obtained from country
+                    centroids, and the contribution of a country to the spatial lag
+                    is feature(country)*distance**(kernel_power). Setting kernel_power
+                    to 0 produces unweighted results.
+                   
+    norm_kernel:    set to 1 to normalise kernel weights         
+    
+    '''
+    
+    # Just a wrapper to make arguments positional (expected by the service)
+    return splag_country.get_splag_country(
+            df,
+            kernel_inner = kernel_inner,
+            kernel_width = kernel_width,
+            kernel_power = kernel_power,
+            norm_kernel = norm_kernel
+            )
+
 def spatial_tree_lag(df,thetacrit,dfunction_option):
 
     '''
-    get_tree_lag
-
-    Driver function for computing tree-lagged features
+    
+    spatial_tree_lag
+    
+    Performs spatial lags on a pg dataframe using a two-dimensional tree 
 
     Arguments:
 
@@ -72,9 +117,11 @@ def spatial_tree_lag(df,thetacrit,dfunction_option):
 def temporal_tree_lag(df,thetacrit,weight_function,sigma,use_stride_tricks):
 
     '''
-    get_tree_lag
-
-    Driver function for computing temporal-tree-lagged features
+    
+    temporal_tree_lag
+    
+    Performs flexible time-lagging on df features which may be real or dummy,
+    using a one-dimensional tree
 
     Arguments:
 
@@ -98,7 +145,7 @@ def temporal_tree_lag(df,thetacrit,weight_function,sigma,use_stride_tricks):
                         - 'sigmoid': weights are 1./(1+np.exp(-lag)) where
                           lag=(mid-tnow+5*sigma5)/sigma5 and sigma5=sigma/5
 
-    tau:              parameter in time units used by df controlling width of expon,
+    sigma:              parameter in time units used by df controlling width of expon,
                         ramp and sigmoid functions
 
     use_stride_tricks:  flag to use numpy stride tricks
