@@ -12,4 +12,15 @@ For resolving the base data, Transform asks the query manager responsible for
 routing to data, which also routs to Transform. This means that transformations
 can be composed.
 
+## Env settings
+
+|Key                                             |Description                                            |
+|------------------------------------------------|-------------------------------------------------------|
+|LOG_LEVEL                                       |Log level, passed to logging.getConfig                 |
+|ROUTER_URL                                      |URL pointing to a views_router instance                |
+
+## Depends on
+
+* [views_router](https://github.com/prio-data/views_router)
+
 For information about how to contribute, see [contributing](https://www.github.com/prio-data/contributing).
