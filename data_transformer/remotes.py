@@ -8,8 +8,7 @@ from . import settings
 logger = logging.getLogger(__name__)
 
 def router_url(loa,path):
-    ROUTER_URL = settings.config("ROUTER_URL")
-    return os.path.join(ROUTER_URL,loa,path)
+    return os.path.join(settings.ROUTER_URL,loa,path)
 
 def get_from_router(loa,path)->pd.DataFrame:
     url = router_url(loa,path)

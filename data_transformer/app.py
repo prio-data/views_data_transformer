@@ -17,7 +17,7 @@ import views_schema as schema
 from . import parsing, settings, remotes, exceptions, operations, transforms, __version__, models
 
 try:
-    logging.basicConfig(level=getattr(logging,settings.config("LOG_LEVEL")))
+    logging.basicConfig(level=getattr(logging,settings.LOG_LEVEL))
 except AttributeError:
     pass
 
