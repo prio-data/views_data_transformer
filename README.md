@@ -23,4 +23,6 @@ can be composed.
 
 * [views_router](https://github.com/prio-data/views_router)
 
+## Contributing
+
 For information about how to contribute, see [contributing](https://www.github.com/prio-data/contributing).
