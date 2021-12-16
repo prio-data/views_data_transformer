@@ -1,5 +1,7 @@
 from views_transformation_library import splag4d,splag_country,spatial_tree,temporal_tree
+from . import guards
 
+@guards.preprocess(guards.floats_only)
 def spatial_lag(df, kernel_inner, kernel_width, kernel_power, norm_kernel):
     '''
 
@@ -40,6 +42,7 @@ def spatial_lag(df, kernel_inner, kernel_width, kernel_power, norm_kernel):
             norm_kernel = norm_kernel
             )
 
+@guards.preprocess(guards.floats_only)
 def spatial_lag_country(df,kernel_inner,kernel_width,kernel_power,norm_kernel):
     '''
     
@@ -82,6 +85,7 @@ def spatial_lag_country(df,kernel_inner,kernel_width,kernel_power,norm_kernel):
             norm_kernel = norm_kernel
             )
 
+@guards.preprocess(guards.floats_only)
 def spatial_tree_lag(df,thetacrit,dfunction_option):
 
     '''
@@ -114,6 +118,7 @@ def spatial_tree_lag(df,thetacrit,dfunction_option):
             dfunction_option = dfunction_option
             )
 
+@guards.preprocess(guards.floats_only)
 def temporal_tree_lag(df,thetacrit,weight_function,sigma,use_stride_tricks):
 
     '''
