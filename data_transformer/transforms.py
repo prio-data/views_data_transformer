@@ -134,6 +134,11 @@ registry.register_function(
 # =MISSING DATA HANDLING==================================
 
 registry.register_function(
+        missing.replace_na,
+        "missing","replace_na"
+        )
+
+registry.register_function(
         missing.fill,
         "missing","fill"
         )
