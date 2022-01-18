@@ -119,7 +119,7 @@ def spatial_tree_lag(df,thetacrit,dfunction_option):
             )
 
 @guards.preprocess(guards.floats_only)
-def spacetime_dist(df,thetacrit,dfunction_option):
+def spacetime_dist(df,return_values,k,nu,power):
 
     '''
     
