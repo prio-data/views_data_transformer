@@ -1,4 +1,4 @@
-from views_transformation_library import splag4d,splag_country,spatial_tree,temporal_tree
+from views_transformation_library import splag4d,splag_country,spatial_tree,temporal_tree,spacetime_distance
 from . import guards
 
 @guards.preprocess(guards.floats_only)
@@ -116,6 +116,49 @@ def spatial_tree_lag(df,thetacrit,dfunction_option):
             df,
             thetacrit = thetacrit,
             dfunction_option = dfunction_option
+            )
+
+@guards.preprocess(guards.floats_only)
+def spacetime_dist(df,thetacrit,dfunction_option):
+
+    '''
+    
+    spacetime_dist
+    
+    For every point in the supplied df, uses scipy.spatial cKDTree to find the nearest k
+    past events (where an event is any non-zero value in the input df) and returns either 
+    the mean spacetime distance to the k events, or the mean of 
+    (size of event)/(spacetime distance)**power.
+    
+    Arguments:
+
+    df:            input df
+
+    return_values: choice of what to return. Allowed values:
+
+                   distances - return mean spacetime distance to nearest k events     
+
+                   weights   - return mean of (size of event)/(spacetime distance)**power
+
+    k:             number of nearest events to be averaged over
+
+    nu:            weighting to be applied to time-component of distances, so that 
+                   spacetime distance = sqrt(delta_latitude^2 + delta_longitude^2 +
+                   nu^2*delta_t^2)
+
+    power:         power to which distance is raised when computing weights. Negative
+                   values are automatically converted to positive values.
+
+    '''
+
+
+    # Just a wrapper to make arguments positional (expected by the service)
+    return spacetime_distance.get_spacetime_distances(
+            df,
+            return_values=return_values,
+            k=k,
+            nu=nu,
+            power=power
             )
 
 @guards.preprocess(guards.floats_only)
