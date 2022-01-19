@@ -130,6 +130,10 @@ registry.register_function(
         "spatial","treelag", applicable_to = ["priogrid_month"],
         )
 
+registry.register_function(
+        lags.spacetime_dist,
+        "spatial","sptime_dist", applicable_to = ["priogrid_month"],
+        )
 
 # =MISSING DATA HANDLING==================================
 
