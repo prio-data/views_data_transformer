@@ -3,7 +3,7 @@ In this file, functions are registered in a registry, which exposes them in the
 service.
 """
 from views_transformation_library import views_2, missing
-from . import porting, lags, util_transforms
+from . import porting, entropy, lags, util_transforms
 from . import registry as registry_module
 
 registry = registry_module.TransformFunctionRegistry()
