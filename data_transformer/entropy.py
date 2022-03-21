@@ -2,7 +2,7 @@ from views_transformation_library import temporal_entropy
 from . import guards
 
 @guards.preprocess(guards.floats_only)
-def temporal_entropy(df,window):
+def temp_entropy(df,window):
     """"
     get_temporal_entropy created 04/03/2022 by Jim Dale
 
