@@ -2,7 +2,8 @@ from views_transformation_library import temporal_entropy
 from . import guards
 
 @guards.preprocess(guards.floats_only)
-def temp_entropy(df,window):
+
+def temporal_entropy(df,window,offset):
     """"
     get_temporal_entropy created 04/03/2022 by Jim Dale
 
@@ -16,7 +17,13 @@ def temp_entropy(df,window):
 
     df:                a dataframe for which entropy is to be computed
 
-    window:            intger size of window
+    window:            integer size of window
+
+    offset:            datasets containing mostly zeros will return
+                       NaNs or Infs for entropy most or all of the time.
+                       Since this is unlikely to be desirable, an
+                       offset can be added to all feature values. so
+                       that sensible values for entropy are returned.
 
     Returns:
 
@@ -25,4 +32,4 @@ def temp_entropy(df,window):
     """
 
     # Just a wrapper to make arguments positional (expected by the service)
-    return temporal_entropy.get_temporal_entropy(df,window=window)
+    return temporal_entropy.get_temporal_entropy(df,window=window,offset=offset)
