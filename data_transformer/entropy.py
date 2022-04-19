@@ -1,4 +1,4 @@
-from views_transformation_library import temporal_entropy
+from views_transformation_library import temporal_entropy as te
 from . import guards
 
 @guards.preprocess(guards.floats_only)
@@ -32,4 +32,4 @@ def temporal_entropy(df,window,offset):
     """
 
     # Just a wrapper to make arguments positional (expected by the service)
-    return temporal_entropy.get_temporal_entropy(df,window=window,offset=offset)
+    return te.get_temporal_entropy(df,window=window,offset=offset)
