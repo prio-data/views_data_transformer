@@ -92,7 +92,7 @@ registry.register_function(
         )
 
 registry.register_function(
-        entropy.temp_entropy,
+        entropy.temporal_entropy,
         "temporal","entropy"
         )
 
